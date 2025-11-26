@@ -1,0 +1,145 @@
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background-color: #050816;
+  color: #f9fafb;
+}
+
+.page {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+.page-header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.page-header h1 {
+  margin: 0 0 0.25rem;
+  font-size: 1.8rem;
+}
+
+.page-header p {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #cbd5f5;
+}
+
+.game {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.player {
+  border-radius: 0.75rem;
+  padding: 1rem;
+  background-color: #0b1220;
+  border: 1px solid #1f2937;
+}
+
+.player h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1.1rem;
+}
+
+.snippet {
+  margin: 0 0 0.5rem;
+  padding: 0.5rem;
+  min-height: 3.5rem;
+  background-color: #020617;
+  border-radius: 0.5rem;
+  font-family: "Consolas", "Fira Code", monospace;
+  font-size: 0.85rem;
+  overflow-x: auto;
+}
+
+.input {
+  width: 100%;
+  box-sizing: border-box;
+  resize: vertical;
+  min-height: 3.5rem;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  border: 1px solid #1f2937;
+  background-color: #020617;
+  color: #f9fafb;
+  font-family: "Consolas", "Fira Code", monospace;
+  font-size: 0.85rem;
+}
+
+.input:focus {
+  outline: 2px solid #3b15fa;
+  outline-offset: 1px;
+  border-color: #3b15fa;
+}
+
+.status {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+}
+
+.state {
+  color: #9ca3af;
+}
+
+.state.ok {
+  color: #3b15fa;
+}
+
+.state.error {
+  color: #ef4444;
+}
+
+.page-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.85rem;
+  color: #9ca3af;
+}
+
+.btn {
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  border: none;
+  background-color: #3b15fa;
+  color: #022c22;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn:hover {
+  filter: brightness(1.05);
+}
+
+.hint {
+  flex: 1;
+}
+
+.footer-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.2rem;
+}
+
+#timer {
+  font-weight: 600;
+  color: #3b15fa;
+}
+
+@media (max-width: 720px) {
+  .game {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+

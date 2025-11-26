@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <title>KeyRush</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <main class="page">
+      <header class="page-header">
+        <h1>KeyRush</h1>
+      </header>
+
+      <section class="game">
+        <article class="player" data-player="1">
+          <h2>Joueur 1</h2>
+          <pre class="snippet" id="snippet-p1"></pre>
+          <textarea
+            id="input-p1"
+            class="input"
+            rows="4"
+            spellcheck="false"
+            autocomplete="off"
+          ></textarea>
+          <div class="status">
+            <span>Score : <span id="score-p1">0</span></span>
+          </div>
+        </article>
+
+        <article class="player" data-player="2">
+          <h2>Joueur 2</h2>
+          <pre class="snippet" id="snippet-p2"></pre>
+          <textarea
+            id="input-p2"
+            class="input"
+            rows="4"
+            spellcheck="false"
+            autocomplete="off"
+          ></textarea>
+          <div class="status">
+            <span>Score : <span id="score-p2">0</span></span>
+          </div>
+        </article>
+      </section>
+
+      <footer class="page-footer">
+        <button id="btn-next" class="btn">Nouveau bout de code</button>
+        <div class="footer-right">
+          <span id="timer">10:00</span>
+        </div>
+      </footer>
+    </main>
+
+    <script src="main.js"></script>
+  </body>
+  </html>
