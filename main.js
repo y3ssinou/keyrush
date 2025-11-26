@@ -73,7 +73,6 @@ function updateTimer() {
 
 function startTimer() {
   clearInterval(timerId);
-  // ne réinitialise pas remainingSeconds ici pour éviter de repartir à 10:00
   updateTimer();
 
   timerId = setInterval(() => {
@@ -164,7 +163,6 @@ btnNext.addEventListener("click", () => {
   setNewSnippet();
 });
 
-// initialisation
 setNewSnippet();
 updateTimer();
 
