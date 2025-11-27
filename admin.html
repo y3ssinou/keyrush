@@ -564,7 +564,13 @@
         let html = '<table class="data-table"><thead><tr><th>ID</th><th>Nom</th><th>Session</th><th>Points</th><th>Victoires</th><th>Créé le</th><th>Actions</th></tr></thead><tbody>';
         
         players.forEach(player => {
-          const date = new Date(player.created_at).toLocaleDateString('fr-FR');
+          const date = new Date(player.created_at).toLocaleString('fr-FR', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit'
+          });
           html += `
             <tr data-id="${player.id}">
               <td>${player.id}</td>
@@ -703,7 +709,13 @@
         let html = '<table class="data-table"><thead><tr><th>ID</th><th>Snippet</th><th>Temps (s)</th><th>Joueur</th><th>Session</th><th>Créé le</th><th>Actions</th></tr></thead><tbody>';
         
         records.forEach(record => {
-          const date = new Date(record.created_at).toLocaleDateString('fr-FR');
+          const date = new Date(record.created_at).toLocaleString('fr-FR', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit'
+          });
           const snippetPreview = record.snippet_text.length > 50 
             ? escapeHtml(record.snippet_text.substring(0, 50)) + '...' 
             : escapeHtml(record.snippet_text);
