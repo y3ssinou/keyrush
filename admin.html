@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <title>KeyRush - Administration</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <link rel="stylesheet" href="style.css" />
+    <style>
+      .admin-page {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 2rem;
+      }
+      .admin-header {
+        text-align: center;
+        margin-bottom: 3rem;
+        padding: 3rem 2rem;
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        border-radius: 16px;
+        border: 1px solid rgba(59, 21, 250, 0.2);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      }
+      .admin-header h1 {
+        font-size: 3rem;
+        margin: 0 0 0.5rem;
+        font-weight: 900;
+        background: linear-gradient(135deg, #3b15fa 0%, #6d4cff 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        letter-spacing: -0.02em;
+      }
+      .admin-header p {
+        color: #94a3b8;
+        font-size: 1rem;
+        margin: 0;
+      }
+      .admin-section {
+        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+        border-radius: 16px;
+        padding: 2.5rem;
+        margin-bottom: 2rem;
+        border: 1px solid rgba(59, 21, 250, 0.15);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      }
+      .admin-section h2 {
+        margin: 0 0 1.5rem;
+        color: #3b15fa;
+        font-size: 1.5rem;
+        font-weight: 700;
+      }
+      .admin-actions {
+        display: grid;
+        gap: 1rem;
+      }
+      .admin-btn {
+        padding: 1rem 1.5rem;
+        background: linear-gradient(135deg, #3b15fa 0%, #6d4cff 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 1rem;
+        transition: all 0.2s ease;
+        box-shadow: 0 4px 12px rgba(59, 21, 250, 0.3);
+      }
+      .admin-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(59, 21, 250, 0.4);
+      }
+      .admin-btn:active {
+        transform: translateY(0);
+      }
+      .admin-btn:disabled {
+        background: #475569;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+      }
+      .admin-btn.danger {
+        background: linear-gradient(135deg, #3b15fa 0%, #6d4cff 100%);
+        box-shadow: 0 4px 12px rgba(59, 21, 250, 0.3);
+      }
+      .admin-btn.danger:hover {
+        box-shadow: 0 6px 16px rgba(59, 21, 250, 0.4);
+      }
+      .key-input-group {
+        margin-bottom: 1.5rem;
+      }
+      .key-input-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        color: #cbd5f5;
+        font-size: 0.9rem;
+        font-weight: 600;
+      }
+      .key-input-group input {
+        width: 100%;
+        padding: 0.75rem;
+        border-radius: 6px;
+        border: 1px solid #1f2937;
+        background: #0f172a;
+        color: #f9fafb;
+        font-size: 1rem;
+        box-sizing: border-box;
+        font-family: 'Consolas', 'Monaco', monospace;
+      }
+      .key-input-group input:focus {
+        outline: 2px solid #3b15fa;
+        outline-offset: 1px;
+        border-color: #3b15fa;
+      }
+      .status-message {
+        margin-top: 1rem;
+        padding: 1rem;
+        border-radius: 8px;
+        background: #1e293b;
+        border: 1px solid rgba(59, 21, 250, 0.2);
+        display: none;
+      }
+      .status-message.show {
+        display: block;
+      }
+      .status-message.success {
+        background: rgba(59, 21, 250, 0.1);
+        border-color: rgba(59, 21, 250, 0.3);
+        color: #3b15fa;
+      }
+      .status-message.error {
+        background: rgba(59, 21, 250, 0.1);
+        border-color: rgba(59, 21, 250, 0.3);
+        color: #3b15fa;
+      }
+      .db-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+      }
+      .stat-card {
+        background: #0f172a;
+        border-radius: 8px;
+        padding: 1rem;
+        text-align: center;
+        border: 1px solid rgba(59, 21, 250, 0.1);
+      }
+      .stat-card .value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #3b15fa;
+        margin-bottom: 0.25rem;
+      }
+      .stat-card .label {
+        font-size: 0.85rem;
+        color: #94a3b8;
+      }
+      .btn-back {
+        display: inline-block;
+        margin-bottom: 2rem;
+        padding: 0.75rem 1.5rem;
+        background: #475569;
+        color: white;
+        text-decoration: none;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: all 0.2s ease;
+      }
+      .btn-back:hover {
+        background: #64748b;
+        transform: translateY(-2px);
+      }
+      .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.85);
+        backdrop-filter: blur(10px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+        padding: 2rem;
+      }
+      .modal-content {
+        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+        border-radius: 16px;
+        border: 1px solid rgba(59, 21, 250, 0.2);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        max-width: 1200px;
+        width: 100%;
+        max-height: 90vh;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+      .modal-header {
+        padding: 1.5rem 2rem;
+        border-bottom: 1px solid rgba(59, 21, 250, 0.2);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .modal-header h2 {
+        margin: 0;
+        color: #3b15fa;
+        font-size: 1.5rem;
+        font-weight: 700;
+      }
+      .modal-close {
+        background: transparent;
+        border: none;
+        color: #94a3b8;
+        font-size: 2rem;
+        cursor: pointer;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+      }
+      .modal-close:hover {
+        background: rgba(59, 21, 250, 0.1);
+        color: #3b15fa;
+      }
+      .modal-body {
+        padding: 2rem;
+        overflow-y: auto;
+        flex: 1;
+      }
+      .data-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        margin-top: 0;
+      }
+      .data-table thead {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+      }
+      .data-table th {
+        background: #0f172a;
+        color: #3b15fa;
+        padding: 1rem;
+        text-align: left;
+        font-weight: 600;
+        border-bottom: 2px solid rgba(59, 21, 250, 0.3);
+        position: sticky;
+        top: 0;
+        z-index: 101;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      }
+      .modal-body {
+        padding: 0;
+        overflow-y: auto;
+        flex: 1;
+        position: relative;
+      }
+      .modal-body-content {
+        padding: 2rem;
+      }
+      .modal-body::-webkit-scrollbar {
+        width: 8px;
+      }
+      .modal-body::-webkit-scrollbar-track {
+        background: #0f172a;
+      }
+      .modal-body::-webkit-scrollbar-thumb {
+        background: #3b15fa;
+        border-radius: 4px;
+      }
+      .modal-body::-webkit-scrollbar-thumb:hover {
+        background: #6d4cff;
+      }
+      .data-table-wrapper {
+        overflow-y: auto;
+        max-height: calc(90vh - 200px);
+      }
+      .data-table td {
+        padding: 1rem;
+        border-bottom: 1px solid rgba(59, 21, 250, 0.1);
+        color: #cbd5f5;
+      }
+      .data-table tr:hover {
+        background: rgba(59, 21, 250, 0.05);
+      }
+      .data-table tr:last-child td {
+        border-bottom: none;
+      }
+      .btn-action {
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 0.85rem;
+        margin-right: 0.5rem;
+        transition: all 0.2s ease;
+      }
+      .btn-edit {
+        background: linear-gradient(135deg, #3b15fa 0%, #6d4cff 100%);
+        color: white;
+      }
+      .btn-edit:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(59, 21, 250, 0.3);
+      }
+      .btn-delete {
+        background: linear-gradient(135deg, #3b15fa 0%, #6d4cff 100%);
+        color: white;
+      }
+      .btn-delete:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(59, 21, 250, 0.3);
+      }
+      .edit-form {
+        background: #0f172a;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-top: 1rem;
+        border: 1px solid rgba(59, 21, 250, 0.2);
+      }
+      .form-group {
+        margin-bottom: 1rem;
+      }
+      .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        color: #cbd5f5;
+        font-size: 0.9rem;
+        font-weight: 600;
+      }
+      .form-group input,
+      .form-group textarea {
+        width: 100%;
+        padding: 0.75rem;
+        border-radius: 6px;
+        border: 1px solid #1f2937;
+        background: #1e293b;
+        color: #f9fafb;
+        font-size: 1rem;
+        box-sizing: border-box;
+        font-family: inherit;
+      }
+      .form-group input:focus,
+      .form-group textarea:focus {
+        outline: 2px solid #3b15fa;
+        outline-offset: 1px;
+        border-color: #3b15fa;
+      }
+      .form-group textarea {
+        resize: vertical;
+        min-height: 100px;
+        font-family: 'Consolas', 'Monaco', monospace;
+      }
+      .form-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1.5rem;
+      }
+      .snippet-text {
+        font-family: 'Consolas', 'Monaco', monospace;
+        font-size: 0.85rem;
+        max-width: 400px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .empty-state {
+        text-align: center;
+        padding: 3rem;
+        color: #94a3b8;
+      }
+      .empty-state svg {
+        width: 64px;
+        height: 64px;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="admin-page">
+      <a href="index.html" class="btn-back">Retour à l'accueil</a>
+      
+      <header class="admin-header">
+        <h1>Admin</h1>
+        <p>Si vous êtes pas Yassine, Houssem ou Théo, vous ne pouvez pas accéder à cette page ^^</p>
+      </header>
+
+      <section class="admin-section">
+        <h2>Connexion admin</h2>
+        <div class="key-input-group">
+          <label for="admin-key">Clé admin</label>
+          <input 
+            type="password" 
+            id="admin-key" 
+            placeholder="Entrez le mdp admin"
+            autocomplete="off"
+          />
+        </div>
+        <button class="admin-btn" onclick="checkAuth()">Vérifier l'accès</button>
+        <div id="auth-status" class="status-message"></div>
+      </section>
+
+      <section class="admin-section" id="admin-panel" style="display: none;">
+        <h2>Statistiques de la base de données</h2>
+        <div class="db-stats" id="db-stats">
+          <div class="stat-card">
+            <div class="value" id="stat-players">-</div>
+            <div class="label">Joueurs</div>
+          </div>
+          <div class="stat-card">
+            <div class="value" id="stat-records">-</div>
+            <div class="label">Records</div>
+          </div>
+          <div class="stat-card">
+            <div class="value" id="stat-wins">-</div>
+            <div class="label">Victoires</div>
+          </div>
+        </div>
+        <button class="admin-btn" onclick="refreshStats()">Actualiser les statistiques</button>
+      </section>
+
+      <section class="admin-section" id="admin-actions" style="display: none;">
+        <h2>Gestion</h2>
+        <div class="admin-actions">
+          <button class="admin-btn" onclick="openManageUsers()">Gérer les utilisateurs</button>
+          <button class="admin-btn" onclick="openManageSnippets()">Gérer les snippets</button>
+          <button class="admin-btn" onclick="resetSeed()">Réinitialiser avec données de test</button>
+          <button class="admin-btn danger" onclick="clearDatabase()">Vider la base de données</button>
+        </div>
+        <div id="action-status" class="status-message"></div>
+      </section>
+    </main>
+
+    <div id="modal-overlay" class="modal-overlay" style="display: none;" onclick="closeModal()">
+      <div class="modal-content" onclick="event.stopPropagation()">
+        <div class="modal-header">
+          <h2 id="modal-title">Modal</h2>
+          <button class="modal-close" onclick="closeModal()">×</button>
+        </div>
+        <div class="modal-body" id="modal-body">
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const API_URL = (window.location.origin + "/api").replace(/\/$/, "");
+      let adminKey = "";
+
+      function getAdminKey() {
+        return document.getElementById("admin-key").value;
+      }
+
+      function showMessage(elementId, message, type = "success") {
+        const element = document.getElementById(elementId);
+        element.textContent = message;
+        element.className = `status-message ${type} show`;
+        setTimeout(() => {
+          element.classList.remove("show");
+        }, 5000);
+      }
+
+      async function checkAuth() {
+        const key = getAdminKey();
+        if (!key) {
+          showMessage("auth-status", "Veuillez entrer une clé d'administration", "error");
+          return;
+        }
+
+        adminKey = key;
+        
+        try {
+          const response = await fetch(`${API_URL}/stats`, {
+            headers: {
+              "x-admin-key": key
+            }
+          });
+
+          if (response.ok) {
+            showMessage("auth-status", "Accès autorisé", "success");
+            document.getElementById("admin-panel").style.display = "block";
+            document.getElementById("admin-actions").style.display = "block";
+            refreshStats();
+          } else {
+            const errorData = await response.json().catch(() => ({ error: "Clé invalide" }));
+            showMessage("auth-status", errorData.error || "Clé invalide. Accès refusé.", "error");
+            adminKey = "";
+          }
+        } catch (error) {
+          showMessage("auth-status", "Erreur de connexion: " + error.message, "error");
+          adminKey = "";
+        }
+      }
+
+      async function refreshStats() {
+        if (!adminKey) {
+          showMessage("action-status", "Veuillez d'abord vérifier votre accès", "error");
+          return;
+        }
+
+        try {
+          const response = await fetch(`${API_URL}/stats`, {
+            headers: {
+              "x-admin-key": adminKey
+            }
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            document.getElementById("stat-players").textContent = data.players || 0;
+            document.getElementById("stat-records").textContent = data.records || 0;
+            document.getElementById("stat-wins").textContent = data.wins || 0;
+          } else {
+            const errorData = await response.json().catch(() => ({ error: "Erreur inconnue" }));
+            showMessage("action-status", "Erreur: " + (errorData.error || "Impossible de charger les statistiques"), "error");
+          }
+        } catch (error) {
+          showMessage("action-status", "Erreur lors du chargement des statistiques: " + error.message, "error");
+        }
+      }
+
+      function closeModal() {
+        document.getElementById("modal-overlay").style.display = "none";
+        document.getElementById("modal-body").innerHTML = "";
+      }
+
+      async function openManageUsers() {
+        if (!adminKey) {
+          showMessage("action-status", "Veuillez d'abord vérifier votre accès", "error");
+          return;
+        }
+
+        document.getElementById("modal-title").textContent = "Gérer les utilisateurs";
+        document.getElementById("modal-overlay").style.display = "flex";
+        document.getElementById("modal-body").innerHTML = '<div class="modal-body-content"><div class="empty-state">Chargement...</div></div>';
+
+        try {
+          const response = await fetch(`${API_URL}/admin/players`, {
+            headers: { "x-admin-key": adminKey }
+          });
+
+          if (!response.ok) {
+            throw new Error("Erreur lors du chargement");
+          }
+
+          const players = await response.json();
+          renderUsersTable(players);
+        } catch (error) {
+          document.getElementById("modal-body").innerHTML = `<div class="modal-body-content"><div class="empty-state">Erreur: ${error.message}</div></div>`;
+        }
+      }
+
+      function renderUsersTable(players) {
+        if (players.length === 0) {
+          document.getElementById("modal-body").innerHTML = '<div class="empty-state">Aucun utilisateur</div>';
+          return;
+        }
+
+        let html = '<table class="data-table"><thead><tr><th>ID</th><th>Nom</th><th>Session</th><th>Points</th><th>Victoires</th><th>Créé le</th><th>Actions</th></tr></thead><tbody>';
+        
+        players.forEach(player => {
+          const date = new Date(player.created_at).toLocaleDateString('fr-FR');
+          html += `
+            <tr data-id="${player.id}">
+              <td>${player.id}</td>
+              <td>${escapeHtml(player.name)}</td>
+              <td>${player.session_number}</td>
+              <td>${player.total_points}</td>
+              <td>${player.wins || 0}</td>
+              <td>${date}</td>
+              <td>
+                <button class="btn-action btn-edit" onclick="editUser(${player.id}, '${escapeHtml(player.name)}', ${player.session_number}, ${player.total_points})">Modifier</button>
+                <button class="btn-action btn-delete" onclick="deleteUser(${player.id}, '${escapeHtml(player.name)}')">Supprimer</button>
+              </td>
+            </tr>
+          `;
+        });
+
+        html += '</tbody></table>';
+        document.getElementById("modal-body").innerHTML = `<div class="modal-body-content">${html}</div>`;
+      }
+
+      function editUser(id, name, session, points) {
+        const html = `
+          <div class="modal-body-content">
+            <div class="edit-form">
+              <h3 style="margin-top: 0; color: #3b15fa;">Modifier l'utilisateur #${id}</h3>
+            <div class="form-group">
+              <label>Nom</label>
+              <input type="text" id="edit-user-name" value="${escapeHtml(name)}" />
+            </div>
+            <div class="form-group">
+              <label>Session (1-5)</label>
+              <input type="number" id="edit-user-session" min="1" max="5" value="${session}" />
+            </div>
+            <div class="form-group">
+              <label>Points</label>
+              <input type="number" id="edit-user-points" min="0" value="${points}" />
+            </div>
+            <div class="form-actions">
+              <button class="admin-btn" onclick="saveUser(${id})">Enregistrer</button>
+              <button class="admin-btn" style="background: #475569;" onclick="openManageUsers()">Annuler</button>
+            </div>
+          </div>
+          </div>
+        `;
+        document.getElementById("modal-body").innerHTML = html;
+      }
+
+      async function saveUser(id) {
+        const name = document.getElementById("edit-user-name").value.trim();
+        const session = parseInt(document.getElementById("edit-user-session").value);
+        const points = parseInt(document.getElementById("edit-user-points").value);
+
+        if (!name || !session || points < 0) {
+          showMessage("action-status", "Veuillez remplir tous les champs correctement", "error");
+          return;
+        }
+
+        try {
+          const response = await fetch(`${API_URL}/admin/players/${id}`, {
+            method: "PUT",
+            headers: {
+              "x-admin-key": adminKey,
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ name, session_number: session, total_points: points })
+          });
+
+          const data = await response.json();
+          
+          if (response.ok) {
+            showMessage("action-status", "Utilisateur modifié avec succès", "success");
+            refreshStats();
+            openManageUsers();
+          } else {
+            showMessage("action-status", data.error || "Erreur lors de la modification", "error");
+          }
+        } catch (error) {
+          showMessage("action-status", "Erreur: " + error.message, "error");
+        }
+      }
+
+      async function deleteUser(id, name) {
+
+        try {
+          const response = await fetch(`${API_URL}/admin/players/${id}`, {
+            method: "DELETE",
+            headers: { "x-admin-key": adminKey }
+          });
+
+          const data = await response.json();
+          
+          if (response.ok) {
+            showMessage("action-status", "Utilisateur supprimé avec succès", "success");
+            refreshStats();
+            openManageUsers();
+          } else {
+            showMessage("action-status", data.error || "Erreur lors de la suppression", "error");
+          }
+        } catch (error) {
+          showMessage("action-status", "Erreur: " + error.message, "error");
+        }
+      }
+
+      async function openManageSnippets() {
+        if (!adminKey) {
+          showMessage("action-status", "Veuillez d'abord vérifier votre accès", "error");
+          return;
+        }
+
+        document.getElementById("modal-title").textContent = "Gérer les snippets";
+        document.getElementById("modal-overlay").style.display = "flex";
+        document.getElementById("modal-body").innerHTML = '<div class="modal-body-content"><div class="empty-state">Chargement...</div></div>';
+
+        try {
+          const response = await fetch(`${API_URL}/admin/snippet-records`, {
+            headers: { "x-admin-key": adminKey }
+          });
+
+          if (!response.ok) {
+            throw new Error("Erreur lors du chargement");
+          }
+
+          const records = await response.json();
+          renderSnippetsTable(records);
+        } catch (error) {
+          document.getElementById("modal-body").innerHTML = `<div class="modal-body-content"><div class="empty-state">Erreur: ${error.message}</div></div>`;
+        }
+      }
+
+      function renderSnippetsTable(records) {
+        if (records.length === 0) {
+          document.getElementById("modal-body").innerHTML = '<div class="modal-body-content"><div class="empty-state">Aucun snippet</div></div>';
+          return;
+        }
+
+        let html = '<table class="data-table"><thead><tr><th>ID</th><th>Snippet</th><th>Temps (s)</th><th>Joueur</th><th>Session</th><th>Créé le</th><th>Actions</th></tr></thead><tbody>';
+        
+        records.forEach(record => {
+          const date = new Date(record.created_at).toLocaleDateString('fr-FR');
+          const snippetPreview = record.snippet_text.length > 50 
+            ? escapeHtml(record.snippet_text.substring(0, 50)) + '...' 
+            : escapeHtml(record.snippet_text);
+          html += `
+            <tr data-id="${record.id}">
+              <td>${record.id}</td>
+              <td><div class="snippet-text" title="${escapeHtml(record.snippet_text)}">${snippetPreview}</div></td>
+              <td>${record.time_seconds.toFixed(2)}</td>
+              <td>${escapeHtml(record.player_name)}</td>
+              <td>${record.session_number}</td>
+              <td>${date}</td>
+              <td>
+                <button class="btn-action btn-edit" onclick="editSnippet(${record.id}, ${JSON.stringify(record.snippet_text).replace(/"/g, '&quot;')}, ${record.time_seconds})">Modifier</button>
+                <button class="btn-action btn-delete" onclick="deleteSnippet(${record.id})">Supprimer</button>
+              </td>
+            </tr>
+          `;
+        });
+
+        html += '</tbody></table>';
+        document.getElementById("modal-body").innerHTML = `<div class="modal-body-content">${html}</div>`;
+      }
+
+      function editSnippet(id, snippet, time) {
+        const html = `
+          <div class="modal-body-content">
+            <div class="edit-form">
+              <h3 style="margin-top: 0; color: #3b15fa;">Modifier le snippet #${id}</h3>
+            <div class="form-group">
+              <label>Snippet de code</label>
+              <textarea id="edit-snippet-text" rows="4">${escapeHtml(snippet)}</textarea>
+            </div>
+            <div class="form-group">
+              <label>Temps (secondes)</label>
+              <input type="number" id="edit-snippet-time" step="0.01" min="0" value="${time}" />
+            </div>
+            <div class="form-actions">
+              <button class="admin-btn" onclick="saveSnippet(${id})">Enregistrer</button>
+              <button class="admin-btn" style="background: #475569;" onclick="openManageSnippets()">Annuler</button>
+            </div>
+          </div>
+          </div>
+        `;
+        document.getElementById("modal-body").innerHTML = html;
+      }
+
+      async function saveSnippet(id) {
+        const snippet = document.getElementById("edit-snippet-text").value.trim();
+        const time = parseFloat(document.getElementById("edit-snippet-time").value);
+
+        if (!snippet || time < 0) {
+          showMessage("action-status", "Veuillez remplir tous les champs correctement", "error");
+          return;
+        }
+
+        try {
+          const response = await fetch(`${API_URL}/admin/snippet-records/${id}`, {
+            method: "PUT",
+            headers: {
+              "x-admin-key": adminKey,
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ snippet_text: snippet, time_seconds: time })
+          });
+
+          const data = await response.json();
+          
+          if (response.ok) {
+            showMessage("action-status", "Snippet modifié avec succès", "success");
+            refreshStats();
+            openManageSnippets();
+          } else {
+            showMessage("action-status", data.error || "Erreur lors de la modification", "error");
+          }
+        } catch (error) {
+          showMessage("action-status", "Erreur: " + error.message, "error");
+        }
+      }
+
+      async function deleteSnippet(id) {
+
+        try {
+          const response = await fetch(`${API_URL}/admin/snippet-records/${id}`, {
+            method: "DELETE",
+            headers: { "x-admin-key": adminKey }
+          });
+
+          const data = await response.json();
+          
+          if (response.ok) {
+            showMessage("action-status", "Snippet supprimé avec succès", "success");
+            refreshStats();
+            openManageSnippets();
+          } else {
+            showMessage("action-status", data.error || "Erreur lors de la suppression", "error");
+          }
+        } catch (error) {
+          showMessage("action-status", "Erreur: " + error.message, "error");
+        }
+      }
+
+      function escapeHtml(text) {
+        const div = document.createElement("div");
+        div.textContent = text;
+        return div.innerHTML;
+      }
+
+      async function resetSeed() {
+        if (!adminKey) {
+          showMessage("action-status", "Veuillez d'abord vérifier votre accès", "error");
+          return;
+        }
+
+
+        try {
+          const response = await fetch(`${API_URL}/reset-seed`, {
+            method: "POST",
+            headers: {
+              "x-admin-key": adminKey
+            }
+          });
+
+          const data = await response.json();
+          
+          if (response.ok) {
+            showMessage("action-status", data.message || "Base de données réinitialisée avec succès", "success");
+            refreshStats();
+          } else {
+            showMessage("action-status", data.error || "Erreur lors de la réinitialisation", "error");
+          }
+        } catch (error) {
+          showMessage("action-status", "Erreur: " + error.message, "error");
+        }
+      }
+
+      async function clearDatabase() {
+        if (!adminKey) {
+          showMessage("action-status", "Veuillez d'abord vérifier votre accès", "error");
+          return;
+        }
+
+
+        try {
+          const response = await fetch(`${API_URL}/clear-db`, {
+            method: "POST",
+            headers: {
+              "x-admin-key": adminKey
+            }
+          });
+
+          const data = await response.json();
+          
+          if (response.ok) {
+            showMessage("action-status", data.message || "Base de données vidée avec succès", "success");
+            refreshStats();
+          } else {
+            showMessage("action-status", data.error || "Erreur lors du vidage", "error");
+          }
+        } catch (error) {
+          showMessage("action-status", "Erreur: " + error.message, "error");
+        }
+      }
+
+      document.getElementById("admin-key").addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          checkAuth();
+        }
+      });
+    </script>
+  </body>
+</html>
+

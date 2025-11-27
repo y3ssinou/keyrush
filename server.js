@@ -1,3 +1,10 @@
+if (process.env.NODE_ENV !== "production") {
+  try {
+    require("dotenv").config();
+  } catch (e) {
+  }
+}
+
 const express = require("express");
 const cors = require("cors");
 const { getDb, initDb } = require("./db");
@@ -9,6 +16,10 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 app.use(express.static(__dirname));
+
+app.get("/secrethihi", (req, res) => {
+  res.sendFile(path.join(__dirname, "admin.html"));
+});
 
 const db = getDb();
 initDb(() => {
@@ -86,6 +97,200 @@ app.get("/api/top-players", (req, res) => {
       res.json(rows);
     }
   );
+});
+
+app.get("/api/admin/players", requireAdminKey, (req, res) => {
+  db.all(
+    `SELECT 
+      p.id,
+      p.name,
+      p.session_number,
+      p.total_points,
+      p.created_at,
+      COUNT(gw.id) as wins
+    FROM players p
+    LEFT JOIN game_wins gw ON p.id = gw.player_id
+    GROUP BY p.id
+    ORDER BY p.created_at DESC`,
+    [],
+    (err, rows) => {
+      if (err) {
+        res.status(500).json({ error: err.message });
+        return;
+      }
+      res.json(rows);
+    }
+  );
+});
+
+app.get("/api/admin/snippet-records", requireAdminKey, (req, res) => {
+  db.all(
+    `SELECT 
+      sr.id,
+      sr.player_id,
+      sr.snippet_text,
+      sr.time_seconds,
+      sr.created_at,
+      p.name as player_name,
+      p.session_number
+    FROM snippet_records sr
+    JOIN players p ON sr.player_id = p.id
+    ORDER BY sr.created_at DESC`,
+    [],
+    (err, rows) => {
+      if (err) {
+        res.status(500).json({ error: err.message });
+        return;
+      }
+      res.json(rows);
+    }
+  );
+});
+
+app.put("/api/admin/players/:id", requireAdminKey, (req, res) => {
+  const playerId = parseInt(req.params.id, 10);
+  const { name, session_number, total_points } = req.body;
+
+  if (!name || !session_number || total_points === undefined) {
+    res.status(400).json({ error: "name, session_number et total_points requis" });
+    return;
+  }
+
+  db.run(
+    "UPDATE players SET name = ?, session_number = ?, total_points = ? WHERE id = ?",
+    [name, session_number, total_points, playerId],
+    function (err) {
+      if (err) {
+        res.status(500).json({ error: err.message });
+        return;
+      }
+      if (this.changes === 0) {
+        res.status(404).json({ error: "Joueur non trouvé" });
+        return;
+      }
+      db.get("SELECT * FROM players WHERE id = ?", [playerId], (err, player) => {
+        if (err) {
+          res.status(500).json({ error: err.message });
+          return;
+        }
+        res.json(player);
+      });
+    }
+  );
+});
+
+app.delete("/api/admin/players/:id", requireAdminKey, (req, res) => {
+  const playerId = parseInt(req.params.id, 10);
+
+  db.serialize(() => {
+    db.run("DELETE FROM game_wins WHERE player_id = ?", [playerId], (err) => {
+      if (err) {
+        res.status(500).json({ error: err.message });
+        return;
+      }
+      db.run("DELETE FROM snippet_records WHERE player_id = ?", [playerId], (err) => {
+        if (err) {
+          res.status(500).json({ error: err.message });
+          return;
+        }
+        db.run("DELETE FROM players WHERE id = ?", [playerId], function (err) {
+          if (err) {
+            res.status(500).json({ error: err.message });
+            return;
+          }
+          if (this.changes === 0) {
+            res.status(404).json({ error: "Joueur non trouvé" });
+            return;
+          }
+          res.json({ message: "Joueur supprimé avec succès" });
+        });
+      });
+    });
+  });
+});
+
+app.put("/api/admin/snippet-records/:id", requireAdminKey, (req, res) => {
+  const recordId = parseInt(req.params.id, 10);
+  const { snippet_text, time_seconds } = req.body;
+
+  if (!snippet_text || time_seconds === undefined) {
+    res.status(400).json({ error: "snippet_text et time_seconds requis" });
+    return;
+  }
+
+  db.run(
+    "UPDATE snippet_records SET snippet_text = ?, time_seconds = ? WHERE id = ?",
+    [snippet_text, time_seconds, recordId],
+    function (err) {
+      if (err) {
+        res.status(500).json({ error: err.message });
+        return;
+      }
+      if (this.changes === 0) {
+        res.status(404).json({ error: "Record non trouvé" });
+        return;
+      }
+      db.get(
+        `SELECT sr.*, p.name as player_name, p.session_number 
+         FROM snippet_records sr 
+         JOIN players p ON sr.player_id = p.id 
+         WHERE sr.id = ?`,
+        [recordId],
+        (err, record) => {
+          if (err) {
+            res.status(500).json({ error: err.message });
+            return;
+          }
+          res.json(record);
+        }
+      );
+    }
+  );
+});
+
+app.delete("/api/admin/snippet-records/:id", requireAdminKey, (req, res) => {
+  const recordId = parseInt(req.params.id, 10);
+
+  db.run("DELETE FROM snippet_records WHERE id = ?", [recordId], function (err) {
+    if (err) {
+      res.status(500).json({ error: err.message });
+      return;
+    }
+    if (this.changes === 0) {
+      res.status(404).json({ error: "Record non trouvé" });
+      return;
+    }
+    res.json({ message: "Record supprimé avec succès" });
+  });
+});
+
+app.get("/api/stats", requireAdminKey, (req, res) => {
+  db.get("SELECT COUNT(*) as count FROM players", [], (err, playersResult) => {
+    if (err) {
+      res.status(500).json({ error: err.message });
+      return;
+    }
+    
+    db.get("SELECT COUNT(*) as count FROM snippet_records", [], (err, recordsResult) => {
+      if (err) {
+        res.status(500).json({ error: err.message });
+        return;
+      }
+      
+      db.get("SELECT COUNT(*) as count FROM game_wins", [], (err, winsResult) => {
+        if (err) {
+          res.status(500).json({ error: err.message });
+          return;
+        }
+        
+        res.json({
+          players: playersResult.count,
+          records: recordsResult.count,
+          wins: winsResult.count
+        });
+      });
+    });
+  });
 });
 
 app.post("/api/snippet-records", (req, res) => {
@@ -272,7 +477,18 @@ app.post("/api/players/:id/add-points", (req, res) => {
   });
 });
 
-app.post("/api/seed", (req, res) => {
+function requireAdminKey(req, res, next) {
+  const adminKey = process.env.ADMIN_KEY || "mdp1234";
+  const providedKey = req.headers["x-admin-key"] || req.body.adminKey;
+  
+  if (!providedKey || providedKey !== adminKey) {
+    res.status(401).json({ error: "Accès non autorisé. Clé admin requise." });
+    return;
+  }
+  next();
+}
+
+app.post("/api/seed", requireAdminKey, (req, res) => {
   db.get("SELECT COUNT(*) as count FROM players", [], (err, result) => {
     if (err) {
       res.status(500).json({ error: err.message });
@@ -291,7 +507,7 @@ app.post("/api/seed", (req, res) => {
   });
 });
 
-app.post("/api/reset-seed", (req, res) => {
+app.post("/api/reset-seed", requireAdminKey, (req, res) => {
   const { getDb } = require("./db");
   const db2 = getDb();
   
@@ -315,6 +531,34 @@ app.post("/api/reset-seed", (req, res) => {
           const { seedDatabase } = require("./seeds");
           seedDatabase();
           res.json({ message: "Base de données réinitialisée et remplie avec des données de test" });
+        });
+      });
+    });
+  });
+});
+
+app.post("/api/clear-db", requireAdminKey, (req, res) => {
+  const { getDb } = require("./db");
+  const db2 = getDb();
+  
+  db2.serialize(() => {
+    db2.run("DELETE FROM game_wins", (err) => {
+      if (err) {
+        res.status(500).json({ error: err.message });
+        return;
+      }
+      db2.run("DELETE FROM snippet_records", (err) => {
+        if (err) {
+          res.status(500).json({ error: err.message });
+          return;
+        }
+        db2.run("DELETE FROM players", (err) => {
+          if (err) {
+            res.status(500).json({ error: err.message });
+            return;
+          }
+          console.log("Base de données vidée");
+          res.json({ message: "Base de données vidée avec succès" });
         });
       });
     });
