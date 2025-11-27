@@ -577,6 +577,7 @@
       let player2 = null;
       let qrScanner = null;
       let currentPlayerNum = null;
+      let scannerRunning = false;
 
       function showQRScanner(playerNum) {
         currentPlayerNum = playerNum;
@@ -598,40 +599,52 @@
         `;
         document.body.appendChild(modal);
 
-        setTimeout(() => {
-          const btnCancel = document.getElementById("btn-cancel-scanner");
-          const btnManual = document.getElementById("btn-manual-input");
-          
-          if (btnCancel) {
-            btnCancel.onclick = (e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              console.log("Bouton Annuler cliqué");
-              closeQRScanner();
-            };
-          } else {
-            console.error("Bouton Annuler non trouvé");
-          }
-          
-          if (btnManual) {
-            btnManual.onclick = (e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              console.log("Bouton Saisie manuelle cliqué");
-              const playerNum = currentPlayerNum;
-              closeQRScanner();
-              setTimeout(() => {
-                showManualInput(playerNum);
-              }, 200);
-            };
-          } else {
-            console.error("Bouton Saisie manuelle non trouvé");
-          }
-        }, 100);
+        const btnCancel = document.getElementById("btn-cancel-scanner");
+        const btnManual = document.getElementById("btn-manual-input");
+        
+        if (btnCancel) {
+          btnCancel.addEventListener("click", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log("Bouton Annuler cliqué");
+            closeQRScanner();
+          });
+        } else {
+          console.error("Bouton Annuler non trouvé");
+        }
+        
+        if (btnManual) {
+          btnManual.addEventListener("click", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log("Bouton Saisie manuelle cliqué");
+            const playerNum = currentPlayerNum;
+            closeQRScanner();
+            setTimeout(() => {
+              showManualInput(playerNum);
+            }, 200);
+          });
+        } else {
+          console.error("Bouton Saisie manuelle non trouvé");
+        }
 
-        qrScanner = new Html5Qrcode("qr-reader");
+        let scannerInitialized = false;
+        scannerRunning = false;
+        
+        try {
+          qrScanner = new Html5Qrcode("qr-reader");
+          scannerInitialized = true;
+        } catch (err) {
+          console.error("Erreur lors de l'initialisation du scanner:", err);
+          qrScanner = null;
+        }
         
         const tryStartScanner = async () => {
+          if (!scannerInitialized || !qrScanner) {
+            console.log("Scanner non initialisé, les boutons restent fonctionnels");
+            return;
+          }
+          
           let started = false;
           let lastError = null;
           
@@ -654,6 +667,7 @@
                 }
               );
               started = true;
+              scannerRunning = true;
             }
           } catch (err) {
             console.log("Méthode 1 échouée:", err.message);
@@ -676,6 +690,7 @@
                 }
               );
               started = true;
+              scannerRunning = true;
             } catch (err2) {
               console.log("Méthode 2 échouée:", err2.message);
               lastError = err2;
@@ -698,6 +713,7 @@
                 }
               );
               started = true;
+              scannerRunning = true;
             } catch (err3) {
               console.log("Méthode 3 échouée:", err3.message);
               lastError = err3;
@@ -706,60 +722,68 @@
           
           if (!started) {
             console.error("Toutes les tentatives ont échoué");
-            const errorMsg = lastError ? lastError.message : "Caméra non trouvée";
-            const useManual = confirm(
-              "Impossible d'accéder à la webcam.\n\n" +
-              "Vérifie que:\n" +
-              "- Ta caméra est connectée et fonctionne\n" +
-              "- Les permissions sont accordées dans le navigateur\n" +
-              "- Aucune autre application n'utilise la caméra\n" +
-              "- Tu utilises HTTPS ou localhost\n\n" +
-              "Erreur: " + errorMsg + "\n\n" +
-              "Voulez-vous utiliser la saisie manuelle à la place ?"
-            );
-            
-            closeQRScanner();
-            
-            if (useManual) {
-              showManualInput(currentPlayerNum);
-            }
+            console.log("La caméra n'est pas accessible. Utilisez les boutons 'Saisie manuelle' ou 'Annuler'.");
           }
         };
         
-        tryStartScanner();
+        if (scannerInitialized && qrScanner) {
+          tryStartScanner().catch((err) => {
+            console.error("Erreur lors du démarrage du scanner:", err);
+          });
+        }
       }
 
       function closeQRScanner() {
         console.log("Fermeture du scanner QR...");
         
-        if (qrScanner) {
+        if (qrScanner && scannerRunning) {
           qrScanner.stop().then(() => {
             console.log("Scanner arrêté avec succès");
-            qrScanner.clear();
-            qrScanner = null;
-          }).catch((err) => {
-            console.log("Scanner déjà arrêté ou non démarré:", err.message);
-            if (qrScanner) {
-              try {
-                qrScanner.clear();
-              } catch (e) {
-              }
+            scannerRunning = false;
+            try {
+              qrScanner.clear();
+            } catch (e) {
             }
             qrScanner = null;
+            cleanupModal();
+          }).catch((err) => {
+            scannerRunning = false;
+            if (err && err.message && err.message.includes("not running")) {
+            } else {
+              console.log("Erreur lors de l'arrêt du scanner:", err.message);
+            }
+            try {
+              if (qrScanner) {
+                qrScanner.clear();
+              }
+            } catch (e) {
+            }
+            qrScanner = null;
+            cleanupModal();
           });
         } else {
-          const readerEl = document.getElementById("qr-reader");
-          if (readerEl) {
-            readerEl.innerHTML = "";
+          scannerRunning = false;
+          if (qrScanner) {
+            try {
+              qrScanner.clear();
+            } catch (e) {
+            }
+            qrScanner = null;
           }
+          cleanupModal();
+        }
+      }
+      
+      function cleanupModal() {
+        const readerEl = document.getElementById("qr-reader");
+        if (readerEl) {
+          readerEl.innerHTML = "";
         }
         
         const modal = document.getElementById("qr-scanner-modal");
         if (modal) {
           modal.remove();
           console.log("Modal fermée");
-        } else {
-          console.log("Modal non trouvée");
         }
         currentPlayerNum = null;
       }
