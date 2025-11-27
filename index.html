@@ -2,56 +2,1004 @@
 <html lang="fr">
   <head>
     <meta charset="UTF-8" />
-    <title>KeyRush</title>
+    <title>KeyRush - Accueil</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="style.css" />
+    <style>
+      .home-page {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+      }
+      .home-header {
+        text-align: center;
+        margin-bottom: 4rem;
+        padding: 3rem 2rem;
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        border-radius: 16px;
+        border: 1px solid rgba(59, 21, 250, 0.2);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      }
+      .home-header h1 {
+        font-size: 4rem;
+        margin: 0 0 1rem;
+        font-weight: 900;
+        background: linear-gradient(135deg, #3b15fa 0%, #6d4cff 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        letter-spacing: -0.02em;
+      }
+      .home-header p {
+        color: #94a3b8;
+        font-size: 1rem;
+        margin: 0;
+        font-weight: 400;
+      }
+      .btn-play {
+        display: block;
+        margin: 2rem auto 0;
+        padding: 1.25rem 3rem;
+        font-size: 1.25rem;
+        background: linear-gradient(135deg, #3b15fa 0%, #6d4cff 100%);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        cursor: pointer;
+        text-decoration: none;
+        text-align: center;
+        max-width: 280px;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        transition: all 0.3s ease;
+        box-shadow: 0 6px 20px rgba(59, 21, 250, 0.4);
+      }
+      .btn-play:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 24px rgba(59, 21, 250, 0.5);
+      }
+      .btn-play:active {
+        transform: translateY(-1px);
+      }
+      .scoreboards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+        gap: 2rem;
+        margin-top: 3rem;
+      }
+      .scoreboard {
+        background: #1e293b;
+        border-radius: 12px;
+        padding: 1.5rem;
+      }
+      .scoreboard h2 {
+        margin-bottom: 1rem;
+        color: #3b15fa;
+      }
+      .scoreboard-item {
+        padding: 0.75rem;
+        margin-bottom: 0.5rem;
+        background: #0f172a;
+        border-radius: 6px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .scoreboard-item .rank {
+        font-weight: bold;
+        color: #3b15fa;
+        margin-right: 1rem;
+      }
+      .scoreboard-item .info {
+        flex: 1;
+      }
+      .scoreboard-item .value {
+        font-weight: bold;
+        color: #3b15fa;
+      }
+      .snippet-preview {
+        font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+        font-size: 0.85rem;
+        margin-top: 0.25rem;
+        white-space: pre-wrap;
+        max-height: 60px;
+        overflow: hidden;
+      }
+      .snippet-preview code {
+        display: block;
+      }
+      .snippet-preview .keyword { color: #ff6b9d; }
+      .snippet-preview .string { color: #51cf66; }
+      .snippet-preview .function { color: #339af0; }
+      .snippet-preview .number { color: #ff922b; }
+      .snippet-preview .operator { color: #74c0fc; }
+      .snippet-preview .bracket { color: #ff6b9d; }
+      .snippet-preview .bracket-close { color: #ff6b9d; }
+      .snippet-preview .comment { color: #868e96; font-style: italic; }
+      .snippet-preview .variable { color: #ff8787; }
+      .snippet-preview .method { color: #74c0fc; }
+      .snippet-preview .arrow { color: #da77f2; }
+      .snippet-preview .html-tag { color: #ff6b9d; }
+      .snippet-preview .html-attr { color: #ff922b; }
+      .snippet-preview .html-string { color: #51cf66; }
+      .snippet-preview .css-selector { color: #339af0; }
+      .snippet-preview .css-property { color: #51cf66; }
+      .snippet-preview .css-value { color: #ff922b; }
+      .snippet-preview .css-unit { color: #da77f2; }
+      .snippet-preview .css-punctuation { color: #74c0fc; }
+      .loading {
+        text-align: center;
+        color: #94a3b8;
+        padding: 2rem;
+      }
+      .auth-section {
+        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+        border-radius: 16px;
+        padding: 2.5rem;
+        margin-bottom: 3rem;
+        border: 1px solid rgba(59, 21, 250, 0.15);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      }
+      .auth-section h2 {
+        text-align: center;
+        margin: 0 0 2rem;
+        color: #f9fafb;
+        font-size: 1.5rem;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+      }
+      .players-auth {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 2rem;
+        margin-bottom: 2rem;
+      }
+      .player-auth-card {
+        background: #0f172a;
+        border-radius: 12px;
+        padding: 2rem;
+        text-align: center;
+        border: 2px solid rgba(59, 21, 250, 0.1);
+        transition: all 0.3s ease;
+      }
+      .player-auth-card:hover {
+        border-color: rgba(59, 21, 250, 0.3);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 16px rgba(59, 21, 250, 0.1);
+      }
+      .player-auth-card h3 {
+        margin: 0 0 1.5rem;
+        color: #f9fafb;
+        font-size: 1.25rem;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+      }
+      .auth-status {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+        padding: 1rem;
+        background: #1e293b;
+        border-radius: 8px;
+        border: 1px solid rgba(148, 163, 184, 0.1);
+        min-height: 48px;
+      }
+      .auth-status.connected {
+        background: rgba(59, 21, 250, 0.1);
+        border-color: rgba(59, 21, 250, 0.3);
+        color: #3b15fa;
+        font-weight: 600;
+      }
+      .status-indicator {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #64748b;
+        display: inline-block;
+      }
+      .auth-status.connected .status-indicator {
+        background: #3b15fa;
+        box-shadow: 0 0 8px rgba(59, 21, 250, 0.5);
+      }
+      .btn-scan {
+        padding: 1rem 1.5rem;
+        background: linear-gradient(135deg, #3b15fa 0%, #6d4cff 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 1rem;
+        width: 100%;
+        transition: all 0.2s ease;
+        box-shadow: 0 4px 12px rgba(59, 21, 250, 0.3);
+      }
+      .btn-scan:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(59, 21, 250, 0.4);
+      }
+      .btn-scan:active {
+        transform: translateY(0);
+      }
+      .btn-scan:disabled {
+        background: #475569;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+      }
+      .player-info {
+        margin-top: 1rem;
+        padding: 0.75rem;
+        background: #1e293b;
+        border-radius: 6px;
+        font-size: 0.9rem;
+      }
+      .player-info strong {
+        color: #3b15fa;
+      }
+      .hidden {
+        display: none !important;
+      }
+      .qr-scanner-modal {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.9);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+      }
+      .qr-scanner-container {
+        background: #1e293b;
+        border-radius: 12px;
+        padding: 2rem;
+        max-width: 500px;
+        width: 90%;
+        text-align: center;
+      }
+      .qr-scanner-container h3 {
+        margin: 0 0 1rem;
+        color: #3b15fa;
+      }
+      #qr-reader {
+        width: 100%;
+        margin: 1rem 0;
+      }
+      .qr-scanner-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 1rem;
+      }
+      .btn-cancel {
+        padding: 0.75rem 1.5rem;
+        background-color: #475569;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 600;
+      }
+      .btn-cancel:hover {
+        background-color: #64748b;
+      }
+      .manual-input-modal {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.9);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1001;
+      }
+      .manual-input-container {
+        background: #1e293b;
+        border-radius: 12px;
+        padding: 2rem;
+        max-width: 400px;
+        width: 90%;
+      }
+      .manual-input-container h3 {
+        margin: 0 0 1.5rem;
+        color: #3b15fa;
+        text-align: center;
+      }
+      .manual-input-group {
+        margin-bottom: 1rem;
+      }
+      .manual-input-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        color: #cbd5f5;
+        font-size: 0.9rem;
+      }
+      .manual-input-group input {
+        width: 100%;
+        padding: 0.75rem;
+        border-radius: 6px;
+        border: 1px solid #1f2937;
+        background: #0f172a;
+        color: #f9fafb;
+        font-size: 1rem;
+        box-sizing: border-box;
+      }
+      .manual-input-group input:focus {
+        outline: 2px solid #3b15fa;
+        outline-offset: 1px;
+        border-color: #3b15fa;
+      }
+      .manual-input-group input.error {
+        border-color: #ef4444;
+      }
+      .error-message {
+        color: #3b15fa;
+        font-size: 0.85rem;
+        margin-top: 0.5rem;
+        display: none;
+      }
+      .error-message.show {
+        display: block;
+      }
+      .manual-input-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1.5rem;
+      }
+      .btn-submit {
+        flex: 1;
+        padding: 0.75rem 1.5rem;
+        background-color: #3b15fa;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 600;
+      }
+      .btn-submit:hover {
+        background-color: #2d0fc7;
+      }
+      .btn-submit:disabled {
+        background-color: #475569;
+        cursor: not-allowed;
+      }
+    </style>
   </head>
   <body>
-    <main class="page">
-      <header class="page-header">
+    <main class="home-page">
+      <header class="home-header">
         <h1>KeyRush</h1>
+        <p>Compétition de vitesse et de précision au clavier</p>
       </header>
 
-      <section class="game">
-        <article class="player" data-player="1">
-          <h2>Joueur 1</h2>
-          <pre class="snippet" id="snippet-p1"></pre>
-          <textarea
-            id="input-p1"
-            class="input"
-            rows="4"
-            spellcheck="false"
-            autocomplete="off"
-          ></textarea>
-          <div class="status">
-            <span>Score : <span id="score-p1">0</span></span>
+      <section class="auth-section">
+        <h2>Authentification</h2>
+        <div class="players-auth">
+          <div class="player-auth-card">
+            <h3>Joueur 1</h3>
+            <div id="player1-status" class="auth-status">
+              <span class="status-indicator"></span>
+              <span>En attente...</span>
+            </div>
+            <button id="btn-scan-p1" class="btn-scan">Scanner QR Code</button>
+            <div id="player1-info" class="player-info hidden"></div>
+          </div>
+
+          <div class="player-auth-card">
+            <h3>Joueur 2</h3>
+            <div id="player2-status" class="auth-status">
+              <span class="status-indicator"></span>
+              <span>En attente...</span>
+            </div>
+            <button id="btn-scan-p2" class="btn-scan">Scanner QR Code</button>
+            <div id="player2-info" class="player-info hidden"></div>
+          </div>
+        </div>
+        <a href="game.html" id="btn-play" class="btn-play hidden">Jouer</a>
+      </section>
+
+      <section class="scoreboards">
+        <article class="scoreboard">
+          <h2>Meilleurs temps par snippet</h2>
+          <div id="snippet-records">
+            <div class="loading">Chargement...</div>
           </div>
         </article>
 
-        <article class="player" data-player="2">
-          <h2>Joueur 2</h2>
-          <pre class="snippet" id="snippet-p2"></pre>
-          <textarea
-            id="input-p2"
-            class="input"
-            rows="4"
-            spellcheck="false"
-            autocomplete="off"
-          ></textarea>
-          <div class="status">
-            <span>Score : <span id="score-p2">0</span></span>
+        <article class="scoreboard">
+          <h2>Top joueurs</h2>
+          <div id="top-players">
+            <div class="loading">Chargement...</div>
           </div>
         </article>
       </section>
-
-      <footer class="page-footer">
-        <button id="btn-next" class="btn">Nouveau bout de code</button>
-        <div class="footer-right">
-          <span id="timer">10:00</span>
-        </div>
-      </footer>
     </main>
 
-    <script src="main.js"></script>
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <script>
+      const API_URL = (window.location.origin + "/api").replace(/\/$/, "");
+
+      async function loadSnippetRecords() {
+        try {
+          const res = await fetch(`${API_URL}/snippet-records`);
+          const records = await res.json();
+          const container = document.getElementById("snippet-records");
+
+          if (records.length === 0) {
+            container.innerHTML = "<div class='loading'>Aucun record pour le moment</div>";
+            return;
+          }
+
+          container.innerHTML = records
+            .map((record, index) => {
+              const timeFormatted = `${record.time_seconds.toFixed(2)}s`;
+              const highlightedCode = highlightCode(escapeHtml(record.snippet_text));
+              return `
+                <div class="scoreboard-item">
+                  <span class="rank">#${index + 1}</span>
+                  <div class="info">
+                    <div><strong>${escapeHtml(record.player_name)}</strong> (Session ${record.session_number})</div>
+                    <div class="snippet-preview"><code>${highlightedCode}</code></div>
+                  </div>
+                  <span class="value">${timeFormatted}</span>
+                </div>
+              `;
+            })
+            .join("");
+        } catch (err) {
+          console.error(err);
+          document.getElementById("snippet-records").innerHTML =
+            "<div class='loading'>Erreur de chargement</div>";
+        }
+      }
+
+      async function loadTopPlayers() {
+        try {
+          const res = await fetch(`${API_URL}/top-players`);
+          const players = await res.json();
+          const container = document.getElementById("top-players");
+
+          if (players.length === 0) {
+            container.innerHTML = "<div class='loading'>Aucun joueur pour le moment</div>";
+            return;
+          }
+
+          container.innerHTML = players
+            .map((player, index) => {
+              return `
+                <div class="scoreboard-item">
+                  <span class="rank">#${index + 1}</span>
+                  <div class="info">
+                    <div><strong>${escapeHtml(player.name)}</strong> (Session ${player.session_number})</div>
+                    <div style="font-size: 0.85rem; color: #94a3b8;">${player.wins} win</div>
+                  </div>
+                  <span class="value">${player.total_points} pts</span>
+                </div>
+              `;
+            })
+            .join("");
+        } catch (err) {
+          console.error(err);
+          document.getElementById("top-players").innerHTML =
+            "<div class='loading'>Erreur de chargement</div>";
+        }
+      }
+
+      function escapeHtml(text) {
+        const div = document.createElement("div");
+        div.textContent = text;
+        return div.innerHTML;
+      }
+
+      function highlightCode(code) {
+        const stringPlaceholders = [];
+        let placeholderIndex = 0;
+        
+        let processed = code.replace(/(["'`])((?:\\.|(?!\1)[^\\])*?)\1/g, (match) => {
+          const placeholder = `__STRING_${placeholderIndex}__`;
+          stringPlaceholders[placeholderIndex] = match;
+          placeholderIndex++;
+          return placeholder;
+        });
+        
+        if (code.trim().startsWith('<') || code.includes('</') || code.includes('/>')) {
+          processed = processed.replace(/<\/?([a-zA-Z][a-zA-Z0-9]*)\b/g, (match, tag) => {
+            return match.replace(tag, `<span class="html-tag">${tag}</span>`);
+          });
+          
+          processed = processed.replace(/\s+([a-zA-Z-]+)=/g, ' <span class="html-attr">$1</span>=');
+          
+          stringPlaceholders.forEach((str, idx) => {
+            processed = processed.replace(`__STRING_${idx}__`, `<span class="html-string">${escapeHtml(str)}</span>`);
+          });
+          
+          return processed;
+        }
+        
+        if (code.includes('{') && (code.includes(':') || code.includes(';')) && !code.includes('function') && !code.includes('=>')) {
+          processed = processed.replace(/([.#]?[a-zA-Z][\w-]*)\s*\{/g, '<span class="css-selector">$1</span> {');
+          
+          processed = processed.replace(/\s+([a-zA-Z-]+)\s*:/g, ' <span class="css-property">$1</span>:');
+          
+          processed = processed.replace(/:\s*([^;]+);/g, ': <span class="css-value">$1</span>;');
+          
+          processed = processed.replace(/(\d+)(px|rem|em|%|vh|vw)/g, '<span class="css-unit">$1$2</span>');
+          
+          processed = processed.replace(/([{}:;])/g, '<span class="css-punctuation">$1</span>');
+          
+          stringPlaceholders.forEach((str, idx) => {
+            processed = processed.replace(`__STRING_${idx}__`, `<span class="html-string">${escapeHtml(str)}</span>`);
+          });
+          
+          return processed;
+        }
+        
+        processed = processed.replace(/\/\/.*$/gm, (match) => {
+          return `<span class="comment">${match}</span>`;
+        });
+        
+        processed = processed.replace(/\b(const|let|var|function|if|else|for|while|return|try|catch|import|from|export|default|new|async|await|Promise|setTimeout|console|log|Math|Number|String|Array|Object|Boolean)\b/g, '<span class="keyword">$1</span>');
+        
+        processed = processed.replace(/\b(\d+\.?\d*)\b/g, '<span class="number">$1</span>');
+        
+        processed = processed.replace(/=>/g, '<span class="arrow">=></span>');
+        
+        processed = processed.replace(/([+\-*/%=<>!&|]+)/g, '<span class="operator">$1</span>');
+        
+        processed = processed.replace(/([{\[])/g, '<span class="bracket">$1</span>');
+        processed = processed.replace(/([}\]])/g, '<span class="bracket-close">$1</span>');
+        processed = processed.replace(/(\()/g, '<span class="bracket">$1</span>');
+        processed = processed.replace(/(\))/g, '<span class="bracket-close">$1</span>');
+        
+        processed = processed.replace(/\b([a-zA-Z_$][a-zA-Z0-9_$]*)\s*(?=\()/g, '<span class="function">$1</span>');
+        
+        processed = processed.replace(/\b([a-zA-Z_$][a-zA-Z0-9_$]*)\s*(?=\.)/g, '<span class="variable">$1</span>');
+        
+        processed = processed.replace(/\.([a-zA-Z_$][a-zA-Z0-9_$]*)\s*(?=\()/g, '.<span class="method">$1</span>');
+        
+        stringPlaceholders.forEach((str, idx) => {
+          processed = processed.replace(`__STRING_${idx}__`, `<span class="string">${escapeHtml(str)}</span>`);
+        });
+        
+        return processed;
+      }
+
+      loadSnippetRecords();
+      loadTopPlayers();
+
+      setInterval(() => {
+        loadSnippetRecords();
+        loadTopPlayers();
+      }, 30000);
+
+      let player1 = null;
+      let player2 = null;
+      let qrScanner = null;
+      let currentPlayerNum = null;
+
+      function showQRScanner(playerNum) {
+        currentPlayerNum = playerNum;
+        const modal = document.createElement("div");
+        modal.className = "qr-scanner-modal";
+        modal.id = "qr-scanner-modal";
+        modal.innerHTML = `
+          <div class="qr-scanner-container">
+            <h3>Scanner QR Code - Joueur ${playerNum}</h3>
+            <p style="color: #94a3b8; font-size: 0.9rem; margin-bottom: 1rem;">
+              Autorise l'accès à la caméra si demandé, puis présente le QR code devant l'objectif.
+            </p>
+            <div id="qr-reader"></div>
+            <div class="qr-scanner-actions">
+              <button class="btn-cancel" id="btn-manual-input" style="background-color: #64748b;">Saisie manuelle</button>
+              <button class="btn-cancel" id="btn-cancel-scanner">Annuler</button>
+            </div>
+          </div>
+        `;
+        document.body.appendChild(modal);
+
+        setTimeout(() => {
+          const btnCancel = document.getElementById("btn-cancel-scanner");
+          const btnManual = document.getElementById("btn-manual-input");
+          
+          if (btnCancel) {
+            btnCancel.onclick = (e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              console.log("Bouton Annuler cliqué");
+              closeQRScanner();
+            };
+          } else {
+            console.error("Bouton Annuler non trouvé");
+          }
+          
+          if (btnManual) {
+            btnManual.onclick = (e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              console.log("Bouton Saisie manuelle cliqué");
+              const playerNum = currentPlayerNum;
+              closeQRScanner();
+              setTimeout(() => {
+                showManualInput(playerNum);
+              }, 200);
+            };
+          } else {
+            console.error("Bouton Saisie manuelle non trouvé");
+          }
+        }, 100);
+
+        qrScanner = new Html5Qrcode("qr-reader");
+        
+        const tryStartScanner = async () => {
+          let started = false;
+          let lastError = null;
+          
+          try {
+            const cameras = await Html5Qrcode.getCameras();
+            if (cameras && cameras.length > 0) {
+              const cameraId = cameras[0].id;
+              console.log("Utilisation de la caméra:", cameras[0].label || cameraId);
+              
+              await qrScanner.start(
+                cameraId,
+                {
+                  fps: 10,
+                  qrbox: { width: 250, height: 250 }
+                },
+                (decodedText) => {
+                  handleQRCodeScanned(decodedText);
+                },
+                (errorMessage) => {
+                }
+              );
+              started = true;
+            }
+          } catch (err) {
+            console.log("Méthode 1 échouée:", err.message);
+            lastError = err;
+          }
+          
+          if (!started) {
+            try {
+              console.log("Tentative avec facingMode: user...");
+              await qrScanner.start(
+                { facingMode: "user" },
+                {
+                  fps: 10,
+                  qrbox: { width: 250, height: 250 }
+                },
+                (decodedText) => {
+                  handleQRCodeScanned(decodedText);
+                },
+                (errorMessage) => {
+                }
+              );
+              started = true;
+            } catch (err2) {
+              console.log("Méthode 2 échouée:", err2.message);
+              lastError = err2;
+            }
+          }
+          
+          if (!started) {
+            try {
+              console.log("Tentative avec facingMode: environment...");
+              await qrScanner.start(
+                { facingMode: "environment" },
+                {
+                  fps: 10,
+                  qrbox: { width: 250, height: 250 }
+                },
+                (decodedText) => {
+                  handleQRCodeScanned(decodedText);
+                },
+                (errorMessage) => {
+                }
+              );
+              started = true;
+            } catch (err3) {
+              console.log("Méthode 3 échouée:", err3.message);
+              lastError = err3;
+            }
+          }
+          
+          if (!started) {
+            console.error("Toutes les tentatives ont échoué");
+            const errorMsg = lastError ? lastError.message : "Caméra non trouvée";
+            const useManual = confirm(
+              "Impossible d'accéder à la webcam.\n\n" +
+              "Vérifie que:\n" +
+              "- Ta caméra est connectée et fonctionne\n" +
+              "- Les permissions sont accordées dans le navigateur\n" +
+              "- Aucune autre application n'utilise la caméra\n" +
+              "- Tu utilises HTTPS ou localhost\n\n" +
+              "Erreur: " + errorMsg + "\n\n" +
+              "Voulez-vous utiliser la saisie manuelle à la place ?"
+            );
+            
+            closeQRScanner();
+            
+            if (useManual) {
+              showManualInput(currentPlayerNum);
+            }
+          }
+        };
+        
+        tryStartScanner();
+      }
+
+      function closeQRScanner() {
+        console.log("Fermeture du scanner QR...");
+        
+        if (qrScanner) {
+          qrScanner.stop().then(() => {
+            console.log("Scanner arrêté avec succès");
+            qrScanner.clear();
+            qrScanner = null;
+          }).catch((err) => {
+            console.log("Scanner déjà arrêté ou non démarré:", err.message);
+            if (qrScanner) {
+              try {
+                qrScanner.clear();
+              } catch (e) {
+              }
+            }
+            qrScanner = null;
+          });
+        } else {
+          const readerEl = document.getElementById("qr-reader");
+          if (readerEl) {
+            readerEl.innerHTML = "";
+          }
+        }
+        
+        const modal = document.getElementById("qr-scanner-modal");
+        if (modal) {
+          modal.remove();
+          console.log("Modal fermée");
+        } else {
+          console.log("Modal non trouvée");
+        }
+        currentPlayerNum = null;
+      }
+
+      async function handleQRCodeScanned(decodedText) {
+        const playerNum = currentPlayerNum;
+        
+        try {
+          if (!playerNum) {
+            console.error("Aucun numéro de joueur défini");
+            closeQRScanner();
+            return;
+          }
+
+          const qrData = JSON.parse(decodedText);
+          const nom = qrData.nom;
+          const session = parseInt(qrData.session, 10);
+          const timestamp = qrData.timestamp;
+
+          if (!nom || !session || session < 1 || session > 5) {
+            throw new Error("Format QR code invalide. Attendu: {\"nom\": \"...\", \"session\": 1-5, \"timestamp\": \"...\"}");
+          }
+
+          if (timestamp) {
+            console.log("Timestamp du QR code:", timestamp);
+          }
+
+          closeQRScanner();
+
+          await authenticatePlayer(playerNum, nom, session);
+        } catch (err) {
+          console.error("Erreur parsing QR:", err);
+          closeQRScanner();
+          alert("QR code invalide: " + err.message);
+        }
+      }
+
+      async function authenticatePlayer(playerNum, nom, session) {
+        const btnScan = document.getElementById(`btn-scan-p${playerNum}`);
+        const statusEl = document.getElementById(`player${playerNum}-status`);
+        const infoEl = document.getElementById(`player${playerNum}-info`);
+
+        if (!btnScan || !statusEl || !infoEl) {
+          console.error("Éléments DOM non trouvés pour le joueur", playerNum);
+          alert("Erreur: éléments de l'interface non trouvés");
+          return;
+        }
+
+        btnScan.disabled = true;
+        statusEl.innerHTML = '<span class="status-indicator">[CONNEXION]</span><span>Connexion...</span>';
+
+        try {
+          const res = await fetch(`${API_URL}/players`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name: nom, session_number: session })
+          });
+
+          if (!res.ok) {
+            const errorData = await res.json().catch(() => ({ error: "Erreur inconnue" }));
+            throw new Error(errorData.error || "Erreur lors de l'authentification");
+          }
+
+          const playerData = await res.json();
+          
+          const isNew = playerData.isNew !== undefined ? playerData.isNew : (playerData.total_points === 5);
+          
+          const { isNew: _, ...player } = playerData;
+          
+          const data = { player: player, isNew: isNew };
+          setPlayerData(playerNum, data, statusEl, infoEl);
+        } catch (err) {
+          console.error("Erreur auth:", err);
+          if (statusEl) {
+            statusEl.innerHTML = '<span class="status-indicator">ERREUR</span><span>Erreur</span>';
+          }
+          alert("Erreur lors de l'authentification: " + err.message);
+        } finally {
+          if (btnScan) {
+            btnScan.disabled = false;
+          }
+        }
+      }
+
+      function setPlayerData(playerNum, data, statusEl, infoEl) {
+        if (playerNum === 1) {
+          player1 = data.player;
+        } else {
+          player2 = data.player;
+        }
+
+        statusEl.className = "auth-status connected";
+        statusEl.innerHTML = '<span>Connecté</span>';
+        infoEl.classList.remove("hidden");
+        infoEl.innerHTML = `
+          <div><strong>${escapeHtml(data.player.name)}</strong> (Session ${data.player.session_number})</div>
+          <div>Points: ${data.player.total_points}</div>
+          <div style="font-size: 0.8rem; color: #94a3b8; margin-top: 0.25rem;">${data.isNew ? "[NOUVEAU] Nouveau joueur (+5 points)" : "[EXISTANT] Joueur existant"}</div>
+        `;
+
+        if (player1 && player2) {
+          document.getElementById("btn-play").classList.remove("hidden");
+        }
+      }
+
+      function showManualInput(playerNum) {
+        console.log("Affichage saisie manuelle pour joueur", playerNum);
+        
+        const modal = document.createElement("div");
+        modal.className = "manual-input-modal";
+        modal.id = "manual-input-modal";
+        modal.innerHTML = `
+          <div class="manual-input-container">
+            <h3>Saisie manuelle - Joueur ${playerNum}</h3>
+            <div class="manual-input-group">
+              <label for="manual-name">Nom du joueur</label>
+              <input type="text" id="manual-name" autocomplete="off" />
+              <div class="error-message" id="error-name"></div>
+            </div>
+            <div class="manual-input-group">
+              <label for="manual-session">Numéro de session (1-5)</label>
+              <input type="number" id="manual-session" min="1" max="5" placeholder="1" autocomplete="off" />
+              <div class="error-message" id="error-session"></div>
+            </div>
+            <div class="manual-input-actions">
+              <button class="btn-cancel" id="btn-cancel-manual">Annuler</button>
+              <button class="btn-submit" id="btn-submit-manual">Valider</button>
+            </div>
+          </div>
+        `;
+        document.body.appendChild(modal);
+        
+        setTimeout(() => {
+          document.getElementById("manual-name").focus();
+        }, 100);
+        
+        document.getElementById("btn-cancel-manual").onclick = () => {
+          modal.remove();
+        };
+        
+        document.getElementById("btn-submit-manual").onclick = () => {
+          const nomInput = document.getElementById("manual-name");
+          const sessionInput = document.getElementById("manual-session");
+          const errorName = document.getElementById("error-name");
+          const errorSession = document.getElementById("error-session");
+          
+          errorName.classList.remove("show");
+          errorName.textContent = "";
+          errorSession.classList.remove("show");
+          errorSession.textContent = "";
+          nomInput.classList.remove("error");
+          sessionInput.classList.remove("error");
+          
+          let hasError = false;
+          
+          const nom = nomInput.value.trim();
+          if (!nom) {
+            errorName.textContent = "Le nom est requis";
+            errorName.classList.add("show");
+            nomInput.classList.add("error");
+            nomInput.focus();
+            hasError = true;
+          }
+          
+          const sessionStr = sessionInput.value.trim();
+          if (!sessionStr) {
+            errorSession.textContent = "Le numéro de session est requis";
+            errorSession.classList.add("show");
+            sessionInput.classList.add("error");
+            if (!hasError) {
+              sessionInput.focus();
+            }
+            hasError = true;
+          } else {
+            const session = parseInt(sessionStr, 10);
+            if (isNaN(session) || session < 1 || session > 5) {
+              errorSession.textContent = "Le numéro de session doit être entre 1 et 5";
+              errorSession.classList.add("show");
+              sessionInput.classList.add("error");
+              if (!hasError) {
+                sessionInput.focus();
+              }
+              hasError = true;
+            }
+          }
+          
+          if (hasError) {
+            return;
+          }
+          
+          const session = parseInt(sessionStr, 10);
+          modal.remove();
+          authenticatePlayer(playerNum, nom, session);
+        };
+        
+        const nameInput = document.getElementById("manual-name");
+        const sessionInput = document.getElementById("manual-session");
+        
+        nameInput.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") {
+            sessionInput.focus();
+          }
+        });
+        
+        nameInput.addEventListener("input", () => {
+          nameInput.classList.remove("error");
+          document.getElementById("error-name").classList.remove("show");
+        });
+        
+        sessionInput.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") {
+            document.getElementById("btn-submit-manual").click();
+          }
+        });
+        
+        sessionInput.addEventListener("input", () => {
+          sessionInput.classList.remove("error");
+          document.getElementById("error-session").classList.remove("show");
+        });
+      }
+
+      function scanAndAuth(playerNum) {
+        showQRScanner(playerNum);
+      }
+
+      window.closeQRScanner = closeQRScanner;
+
+      document.getElementById("btn-scan-p1").addEventListener("click", () => scanAndAuth(1));
+      document.getElementById("btn-scan-p2").addEventListener("click", () => scanAndAuth(2));
+
+      document.getElementById("btn-play").addEventListener("click", (e) => {
+        if (!player1 || !player2) {
+          e.preventDefault();
+          alert("Les 2 joueurs doivent être connectés");
+          return;
+        }
+        localStorage.setItem("player1", JSON.stringify(player1));
+        localStorage.setItem("player2", JSON.stringify(player2));
+      });
+    </script>
   </body>
-  </html>
+</html>
+

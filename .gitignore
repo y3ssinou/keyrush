@@ -1,0 +1,7 @@
+node_modules/
+keyrush.db
+.DS_Store
+*.log
+venv/
+__pycache__/
+*.pyc

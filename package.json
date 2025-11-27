@@ -1,0 +1,19 @@
+{
+  "name": "keyrush",
+  "version": "1.0.0",
+  "description": "Jeu de frappe de code pour programmeurs",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "seed": "node seeds.js",
+    "reset": "node reset-db.js",
+    "reset:seed": "node reset-db.js && node seeds.js",
+    "rebuild": "npm rebuild sqlite3"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "sqlite3": "^5.1.6",
+    "cors": "^2.8.5"
+  }
+}
+
