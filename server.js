@@ -13,6 +13,21 @@ app.use(express.static(__dirname));
 const db = getDb();
 initDb(() => {
   console.log("Tables créées");
+  
+  db.get("SELECT COUNT(*) as count FROM players", [], (err, result) => {
+    if (err) {
+      console.error("Erreur vérification DB:", err);
+      return;
+    }
+    
+    if (result && result.count === 0) {
+      console.log("Base de données vide, initialisation avec des données de test...");
+      const { seedDatabase } = require("./seeds");
+      seedDatabase();
+    } else {
+      console.log(`Base de données contient ${result ? result.count : 0} joueurs`);
+    }
+  });
 });
 
 app.get("/api/snippet-records", (req, res) => {
@@ -253,6 +268,55 @@ app.post("/api/players/:id/add-points", (req, res) => {
         return;
       }
       res.json({ id: playerId, total_points: newTotal });
+    });
+  });
+});
+
+app.post("/api/seed", (req, res) => {
+  db.get("SELECT COUNT(*) as count FROM players", [], (err, result) => {
+    if (err) {
+      res.status(500).json({ error: err.message });
+      return;
+    }
+    
+    if (result && result.count > 0) {
+      res.status(400).json({ error: "La base de données contient déjà des données. Utilisez /api/reset-seed pour réinitialiser." });
+      return;
+    }
+    
+    console.log("Initialisation de la base de données avec des données de test...");
+    const { seedDatabase } = require("./seeds");
+    seedDatabase();
+    res.json({ message: "Base de données initialisée avec des données de test" });
+  });
+});
+
+app.post("/api/reset-seed", (req, res) => {
+  const { getDb } = require("./db");
+  const db2 = getDb();
+  
+  db2.serialize(() => {
+    db2.run("DELETE FROM game_wins", (err) => {
+      if (err) {
+        res.status(500).json({ error: err.message });
+        return;
+      }
+      db2.run("DELETE FROM snippet_records", (err) => {
+        if (err) {
+          res.status(500).json({ error: err.message });
+          return;
+        }
+        db2.run("DELETE FROM players", (err) => {
+          if (err) {
+            res.status(500).json({ error: err.message });
+            return;
+          }
+          console.log("Base de données réinitialisée, ajout des seeds...");
+          const { seedDatabase } = require("./seeds");
+          seedDatabase();
+          res.json({ message: "Base de données réinitialisée et remplie avec des données de test" });
+        });
+      });
     });
   });
 });

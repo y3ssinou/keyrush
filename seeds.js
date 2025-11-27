@@ -31,7 +31,6 @@ function seed() {
 }
 
 function runSeeds(db) {
-
   const insertPlayer = db.prepare(
     "INSERT INTO players (name, session_number, total_points) VALUES (?, ?, ?)"
   );
@@ -125,5 +124,14 @@ function runSeeds(db) {
   });
 }
 
-seed();
+function seedDatabase() {
+  const db = getDb();
+  runSeeds(db);
+}
+
+if (require.main === module) {
+  seed();
+}
+
+module.exports = { seedDatabase, runSeeds, PLAYERS, SNIPPETS };
 
