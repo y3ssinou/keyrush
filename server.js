@@ -570,7 +570,7 @@ app.post("/api/clear-db", requireAdminKey, (req, res) => {
 
 const server = http.createServer(app);
 
-const wss = new WebSocket.Server({ port: WS_PORT });
+const wss = new WebSocket.Server({ noServer: true });
 const clients = new Map();
 
 function safeSend(ws, obj) {
@@ -637,8 +637,30 @@ wss.on('connection', (ws, req) => {
   });
 });
 
+server.on('upgrade', (request, socket, head) => {
+  const pathname = request.url;
+  
+  if (pathname === '/ws' || pathname === '/') {
+    wss.handleUpgrade(request, socket, head, (ws) => {
+      wss.emit('connection', ws, request);
+    });
+  } else {
+    socket.destroy();
+  }
+});
+
 server.listen(PORT, "0.0.0.0", () => {
   console.log(`Serveur démarré sur le port ${PORT}`);
-  console.log(`WebSocket serveur démarré sur le port ${WS_PORT}`);
+  console.log(`WebSocket disponible sur ws://localhost:${PORT}/ws`);
+  console.log(`Lancer le site sur : http://localhost:${PORT}`);
+});
+
+server.on('error', (err) => {
+  if (err.code === 'EADDRINUSE') {
+    console.error(`Le port ${PORT} est déjà utilisé.`);
+    process.exit(1);
+  } else {
+    throw err;
+  }
 });
 

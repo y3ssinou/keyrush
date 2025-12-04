@@ -54,8 +54,7 @@ const SNIPPETS = [
 const MAX_SCORE = 10;
 const GAME_DURATION_SECONDS = 10 * 60;
 const API_URL = (window.location.origin + "/api").replace(/\/$/, "");
-const WS_PORT = 8080;
-const WS_URL = (window.location.protocol === 'https:' ? 'wss://' : 'ws://') + window.location.hostname + ':' + WS_PORT;
+const WS_URL = (window.location.protocol === 'https:' ? 'wss://' : 'ws://') + window.location.host + '/ws';
 
 const player1Data = JSON.parse(localStorage.getItem("player1") || "null");
 const player2Data = JSON.parse(localStorage.getItem("player2") || "null");
