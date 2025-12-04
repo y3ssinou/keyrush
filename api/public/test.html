@@ -3,15 +3,18 @@
   <head><meta charset="utf-8"/><title>Device Simulator</title></head>
   <body>
     <h2>Raspberry Pi</h2>
-    <label>ID: <input id="deviceId" value="sim-01"></label>
-    <button id="connect">Connect</button>
-    <div>
-      <button data-code="KEY_A">A</button>
-      <button data-code="KEY_B">B</button>
-      <button data-code="KEY_SPACE">Space</button>
-      <button data-code="KEY_ENTER">Enter</button>
+
+    <div class="controls">
+      Device ID: <input id="deviceId" value="sim-01" />
+      <button id="connect">Connect</button>
+      <button id="disconnect" disabled>Disconnect</button>
     </div>
-    <div id="status"></div>
+
+    <label for="typingArea">Ecrire ici:</label>
+    <textarea id="typingArea" placeholder="Start typing..." autocomplete="off"></textarea>
+
+    <div id="status">Not connected</div>
+    <div id="debug"></div>
 
     <script src="/js/test.js"></script>
   </body>
