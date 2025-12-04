@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test</title>
+    <style>
+        body {
+            font-family: system-ui, Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #0f172a;
+            color: #f9fafb;
+        }
+        h1 {
+            color: #3b15fa;
+            text-align: center;
+        }
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .box {
+            background: #1e293b;
+            border: 2px solid #3b15fa;
+            border-radius: 12px;
+            padding: 20px;
+        }
+        .box h2 {
+            margin-top: 0;
+            color: #3b15fa;
+        }
+        .status {
+            padding: 8px;
+            background: #0f172a;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        .status.connected {
+            background: rgba(59, 21, 250, 0.2);
+            border: 1px solid #3b15fa;
+        }
+        textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 10px;
+            background: #0f172a;
+            border: 1px solid #475569;
+            border-radius: 6px;
+            color: #f9fafb;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            resize: vertical;
+            box-sizing: border-box;
+        }
+        textarea:focus {
+            outline: 2px solid #3b15fa;
+            border-color: #3b15fa;
+        }
+        button {
+            padding: 8px 16px;
+            background: #3b15fa;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+        button:hover {
+            background: #2d0fc7;
+        }
+        button:disabled {
+            background: #475569;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <h1>keyrush</h1>
+    
+    <div class="container">
+        <div class="box">
+            <h2>Joueur 1</h2>
+            <div id="status-p1" class="status">Non connecté</div>
+            <textarea id="input-p1" placeholder="Tapez ici..."></textarea>
+            <button id="btn-p1">Se connecter</button>
+        </div>
+        
+        <div class="box">
+            <h2>Joueur 2</h2>
+            <div id="status-p2" class="status">Non connecté</div>
+            <textarea id="input-p2" placeholder="Tapez ici..."></textarea>
+            <button id="btn-p2">Se connecter</button>
+        </div>
+    </div>
+
+    <script>
+        const WS_URL = (window.location.protocol === 'https:' ? 'wss://' : 'ws://') + window.location.host + '/ws';
+        const ws = { p1: null, p2: null };
+        
+        function connect(player) {
+            if (ws[player]) return;
+            
+            const deviceId = `test-${player}`;
+            const inputEl = document.getElementById(`input-${player}`);
+            const statusEl = document.getElementById(`status-${player}`);
+            const btnEl = document.getElementById(`btn-${player}`);
+            
+            const websocket = new WebSocket(WS_URL);
+            
+            websocket.onopen = () => {
+                websocket.send(JSON.stringify({ role: 'device', deviceId }));
+                statusEl.textContent = 'Connecté';
+                statusEl.classList.add('connected');
+                btnEl.textContent = 'Connecté';
+                btnEl.disabled = true;
+            };
+            
+            websocket.onclose = () => {
+                statusEl.textContent = 'Déconnecté';
+                statusEl.classList.remove('connected');
+                btnEl.textContent = 'Se connecter';
+                btnEl.disabled = false;
+                ws[player] = null;
+            };
+            
+            websocket.onerror = () => {
+                statusEl.textContent = 'Erreur';
+                statusEl.classList.remove('connected');
+            };
+            
+            inputEl.oninput = () => {
+                if (websocket.readyState === WebSocket.OPEN) {
+                    websocket.send(JSON.stringify({
+                        deviceId,
+                        type: 'text',
+                        text: inputEl.value,
+                        ts: Date.now()
+                    }));
+                }
+            };
+            
+            inputEl.onkeydown = (e) => {
+                if (e.key === 'Enter' && !e.shiftKey && websocket.readyState === WebSocket.OPEN) {
+                    e.preventDefault();
+                    websocket.send(JSON.stringify({
+                        deviceId,
+                        type: 'submit',
+                        text: inputEl.value,
+                        ts: Date.now()
+                    }));
+                }
+            };
+            
+            ws[player] = websocket;
+        }
+        
+        document.getElementById('btn-p1').onclick = () => connect('p1');
+        document.getElementById('btn-p2').onclick = () => connect('p2');
+    </script>
+</body>
+</html>
