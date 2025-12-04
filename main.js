@@ -54,6 +54,8 @@ const SNIPPETS = [
 const MAX_SCORE = 10;
 const GAME_DURATION_SECONDS = 10 * 60;
 const API_URL = (window.location.origin + "/api").replace(/\/$/, "");
+const WS_PORT = 8080;
+const WS_URL = (window.location.protocol === 'https:' ? 'wss://' : 'ws://') + window.location.hostname + ':' + WS_PORT;
 
 const player1Data = JSON.parse(localStorage.getItem("player1") || "null");
 const player2Data = JSON.parse(localStorage.getItem("player2") || "null");
@@ -79,6 +81,88 @@ const returnHomeMessage = document.getElementById("return-home-message");
 
 let lastCorrectLengthP1 = 0;
 let lastCorrectLengthP2 = 0;
+
+const deviceToPlayerMap = new Map();
+let ws = null;
+
+function initWebSocket() {
+  try {
+    ws = new WebSocket(WS_URL);
+    
+    ws.addEventListener('open', () => {
+      console.log('[WebSocket] Connexion établie');
+    });
+    
+    ws.addEventListener('message', (ev) => {
+      let msg;
+      try { 
+        msg = JSON.parse(ev.data); 
+      } catch (e) { 
+        console.warn('[WebSocket] Message JSON invalide', ev.data); 
+        return; 
+      }
+      
+      if (!msg || !msg.deviceId) return;
+      
+      handleDeviceMessage(msg);
+    });
+    
+    ws.addEventListener('close', () => {
+      console.log('[WebSocket] Connexion fermée');
+      setTimeout(initWebSocket, 3000);
+    });
+    
+    ws.addEventListener('error', (err) => {
+      console.error('[WebSocket] Erreur', err);
+    });
+  } catch (error) {
+    console.error('[WebSocket] Erreur de connexion', error);
+  }
+}
+
+function handleDeviceMessage(msg) {
+  const deviceId = msg.deviceId;
+  
+  if (!deviceToPlayerMap.has(deviceId)) {
+    const availablePlayers = [];
+    if (!deviceToPlayerMap.has('p1')) availablePlayers.push('p1');
+    if (!deviceToPlayerMap.has('p2')) availablePlayers.push('p2');
+    
+    if (availablePlayers.length > 0) {
+      const assignedPlayer = availablePlayers[0];
+      deviceToPlayerMap.set(deviceId, assignedPlayer);
+      deviceToPlayerMap.set(assignedPlayer, deviceId);
+      console.log(`[WebSocket] Device ${deviceId} assigné au joueur ${assignedPlayer}`);
+    } else {
+      console.warn(`[WebSocket] Aucun joueur disponible pour device ${deviceId}`);
+      return;
+    }
+  }
+  
+  const player = deviceToPlayerMap.get(deviceId);
+  if (!player || (player !== 'p1' && player !== 'p2')) return;
+  
+  const input = player === 'p1' ? inputP1 : inputP2;
+  
+  if (msg.type === 'text' && msg.text !== undefined) {
+    input.value = msg.text;
+    const event = new Event('input', { bubbles: true });
+    input.dispatchEvent(event);
+    
+    if (!timerStarted && !gameOver) {
+      timerStarted = true;
+      startTimer();
+    }
+  } else if (msg.type === 'submit') {
+    if (msg.text !== undefined) {
+      input.value = msg.text;
+      const event = new Event('input', { bubbles: true });
+      input.dispatchEvent(event);
+    }
+    handleValidate(player);
+  }
+}
+
 
 function playErrorSound() {
   try {
@@ -514,6 +598,7 @@ if (infoEl) {
   infoEl.style.display = "block";
 }
 
+initWebSocket();
 setNewSnippet();
 updateTimer();
 

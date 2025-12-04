@@ -7,11 +7,14 @@ if (process.env.NODE_ENV !== "production") {
 
 const express = require("express");
 const cors = require("cors");
+const http = require("http");
+const WebSocket = require("ws");
 const { getDb, initDb } = require("./db");
 const path = require("path");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const WS_PORT = process.env.WS_PORT || 8080;
 
 app.use(cors());
 app.use(express.json());
@@ -565,7 +568,77 @@ app.post("/api/clear-db", requireAdminKey, (req, res) => {
   });
 });
 
-app.listen(PORT, "0.0.0.0", () => {
+const server = http.createServer(app);
+
+const wss = new WebSocket.Server({ port: WS_PORT });
+const clients = new Map();
+
+function safeSend(ws, obj) {
+  if (ws.readyState === WebSocket.OPEN) {
+    try { ws.send(JSON.stringify(obj)); } catch (e) {}
+  }
+}
+
+function broadcastToBrowsers(obj) {
+  const raw = JSON.stringify(obj);
+  for (const [c, meta] of clients.entries()) {
+    if (meta && meta.role === 'browser' && c.readyState === WebSocket.OPEN) {
+      try { c.send(raw); } catch (e) {}
+    }
+  }
+}
+
+wss.on('connection', (ws, req) => {
+  console.log('[WebSocket] Connexion établie depuis', req.socket.remoteAddress);
+  clients.set(ws, { role: 'browser' });
+
+  let first = true;
+  ws.on('message', (raw) => {
+    let msg;
+    try { msg = JSON.parse(raw); } catch (e) {
+      console.log('[WebSocket] Message non-JSON reçu:', raw.toString());
+      return;
+    }
+
+    if (first) {
+      first = false;
+      if (msg.role === 'device' && msg.deviceId) {
+        clients.set(ws, { role: 'device', deviceId: msg.deviceId });
+        console.log(`[WebSocket] Client identifié comme device: ${msg.deviceId}`);
+        safeSend(ws, { server: 'ok', note: 'registered as device', deviceId: msg.deviceId });
+        return;
+      } else {
+        clients.set(ws, { role: 'browser' });
+        console.log('[WebSocket] Client par défaut: browser');
+        return;
+      }
+    }
+
+    const meta = clients.get(ws) || {};
+    if (meta.role === 'device') {
+      msg.serverTs = Date.now();
+      console.log(`[device ${meta.deviceId}] ->`, msg);
+      broadcastToBrowsers(msg);
+      safeSend(ws, { ack: msg.seq ?? null, serverTs: Date.now() });
+    } else {
+      console.log('[browser] Message reçu', msg);
+    }
+  });
+
+  ws.on('close', () => {
+    const meta = clients.get(ws) || {};
+    console.log('[WebSocket] Connexion fermée', meta.role, meta.deviceId || '');
+    clients.delete(ws);
+  });
+
+  ws.on('error', (err) => {
+    console.log('[WebSocket] Erreur', err && err.message);
+    clients.delete(ws);
+  });
+});
+
+server.listen(PORT, "0.0.0.0", () => {
   console.log(`Serveur démarré sur le port ${PORT}`);
+  console.log(`WebSocket serveur démarré sur le port ${WS_PORT}`);
 });
 

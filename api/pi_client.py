@@ -3,9 +3,9 @@ import json, time, os
 from evdev import InputDevice, categorize, ecodes
 import websocket
 
-SERVER = os.getenv('SERVER', 'ws://server-ip:4000')  # change to your server IP or domain
+SERVER = os.getenv('SERVER', 'ws://localhost:8080')
 DEVICE_ID = os.getenv('DEVICE_ID', 'raspi-01')
-DEVICE_PATH = os.getenv('DEVICE_PATH', '/dev/input/event0')  # set to your keyboard input device
+DEVICE_PATH = os.getenv('DEVICE_PATH', '/dev/input/event0')
 
 def main():
     ws = websocket.create_connection(SERVER)
