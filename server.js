@@ -588,6 +588,15 @@ function broadcastToBrowsers(obj) {
   }
 }
 
+function broadcastToDevices(obj) {
+  const raw = JSON.stringify(obj);
+  for (const [c, meta] of clients.entries()) {
+    if (meta && meta.role === 'device' && c.readyState === WebSocket.OPEN) {
+      try { c.send(raw); } catch (e) {}
+    }
+  }
+}
+
 wss.on('connection', (ws, req) => {
   console.log('[WebSocket] Connexion établie depuis', req.socket.remoteAddress);
   clients.set(ws, { role: 'browser' });
@@ -622,6 +631,9 @@ wss.on('connection', (ws, req) => {
       safeSend(ws, { ack: msg.seq ?? null, serverTs: Date.now() });
     } else {
       console.log('[browser] Message reçu', msg);
+      if (msg.type === 'reset' && msg.player) {
+        broadcastToDevices(msg);
+      }
     }
   });
 

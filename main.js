@@ -404,6 +404,19 @@ function showCountdown(callback) {
   updateCountdown();
 }
 
+function sendResetToDevice(player) {
+  if (ws && ws.readyState === WebSocket.OPEN && deviceToPlayerMap.has(player)) {
+    const deviceId = deviceToPlayerMap.get(player);
+    if (deviceId) {
+      ws.send(JSON.stringify({
+        type: 'reset',
+        player: player,
+        deviceId: deviceId
+      }));
+    }
+  }
+}
+
 function setNewSnippet(winnerPlayer = null) {
   if (gameOver) return;
   
@@ -415,6 +428,9 @@ function setNewSnippet(winnerPlayer = null) {
   updateSnippetDisplay("p2");
   setState("p1", "Prêt");
   setState("p2", "Prêt");
+  
+  sendResetToDevice("p1");
+  sendResetToDevice("p2");
   
   showRoundWinner(winnerPlayer, () => {
     showCountdown(() => {

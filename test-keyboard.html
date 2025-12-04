@@ -134,6 +134,14 @@
                 statusEl.classList.remove('connected');
             };
             
+            websocket.onmessage = (ev) => {
+                const msg = JSON.parse(ev.data);
+                if (msg.type === 'reset' && msg.deviceId === deviceId) {
+                    inputEl.value = '';
+                    console.log(`[${player}] Champ réinitialisé`);
+                }
+            };
+            
             inputEl.oninput = () => {
                 if (websocket.readyState === WebSocket.OPEN) {
                     websocket.send(JSON.stringify({
@@ -154,6 +162,9 @@
                         text: inputEl.value,
                         ts: Date.now()
                     }));
+                    setTimeout(() => {
+                        inputEl.value = '';
+                    }, 100);
                 }
             };
             
